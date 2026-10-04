@@ -34,7 +34,7 @@ cadastroForm.addEventListener("submit", async function(event) {
             data: {
                 nome: nome
             },
-            emailRedirectTo: "http://127.0.0.1:5500/index.html"
+            emailRedirectTo: "https://pedrohso05-cmd.github.io/controle-financeiro/index.html"
         }
     });
 
@@ -53,4 +53,5 @@ cadastroForm.addEventListener("submit", async function(event) {
 
     cadastroForm.reset();
 
+});
 });
