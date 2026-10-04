@@ -5,11 +5,14 @@
 
     <meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Meu Financeiro</title>
 
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
@@ -25,7 +28,9 @@
 
         </div>
 
-        <button id="btnSair">Sair</button>
+        <button id="btnSair">
+            Sair
+        </button>
 
     </header>
 
@@ -75,18 +80,26 @@
 
             <form id="financeForm">
 
-                <label for="tipo">Tipo</label>
+                <label for="tipo">
+                    Tipo
+                </label>
 
                 <select id="tipo" required>
 
-                    <option value="despesa">Despesa</option>
+                    <option value="despesa">
+                        Despesa
+                    </option>
 
-                    <option value="receita">Receita</option>
+                    <option value="receita">
+                        Receita
+                    </option>
 
                 </select>
 
 
-                <label for="descricao">Descrição</label>
+                <label for="descricao">
+                    Descrição
+                </label>
 
                 <input
                     type="text"
@@ -96,7 +109,9 @@
                 >
 
 
-                <label for="valor">Valor total</label>
+                <label for="valor">
+                    Valor total
+                </label>
 
                 <input
                     type="number"
@@ -108,51 +123,85 @@
                 >
 
 
-                <label for="categoria">Categoria</label>
+                <label for="categoria">
+                    Categoria
+                </label>
 
                 <select id="categoria" required>
 
-                    <option value="Alimentação">🍔 Alimentação</option>
+                    <option value="Alimentação">
+                        🍔 Alimentação
+                    </option>
 
-                    <option value="Transporte">🚗 Transporte</option>
+                    <option value="Transporte">
+                        🚗 Transporte
+                    </option>
 
-                    <option value="Casa">🏠 Casa</option>
+                    <option value="Casa">
+                        🏠 Casa
+                    </option>
 
-                    <option value="Lazer">🎮 Lazer</option>
+                    <option value="Lazer">
+                        🎮 Lazer
+                    </option>
 
-                    <option value="Estudos">🎓 Estudos</option>
+                    <option value="Estudos">
+                        🎓 Estudos
+                    </option>
 
-                    <option value="Compras">🛒 Compras</option>
+                    <option value="Compras">
+                        🛒 Compras
+                    </option>
 
-                    <option value="Saúde">❤️ Saúde</option>
+                    <option value="Saúde">
+                        ❤️ Saúde
+                    </option>
 
-                    <option value="Outros">📦 Outros</option>
+                    <option value="Outros">
+                        📦 Outros
+                    </option>
 
                 </select>
 
 
-                <label for="pagamento">Forma de pagamento</label>
+                <label for="pagamento">
+                    Forma de pagamento
+                </label>
 
                 <select id="pagamento">
 
-                    <option value="Pix">Pix</option>
+                    <option value="Pix">
+                        Pix
+                    </option>
 
-                    <option value="Débito">Débito</option>
+                    <option value="Débito">
+                        Débito
+                    </option>
 
-                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Dinheiro">
+                        Dinheiro
+                    </option>
 
-                    <option value="Crédito">Cartão de crédito</option>
+                    <option value="Crédito">
+                        Cartão de crédito
+                    </option>
 
                 </select>
 
 
-                <label for="tipoCompra">Tipo de compra</label>
+                <label for="tipoCompra">
+                    Tipo de compra
+                </label>
 
                 <select id="tipoCompra">
 
-                    <option value="avista">À vista</option>
+                    <option value="avista">
+                        À vista
+                    </option>
 
-                    <option value="parcelado">Parcelado</option>
+                    <option value="parcelado">
+                        Parcelado
+                    </option>
 
                 </select>
 
@@ -173,7 +222,9 @@
                 </div>
 
 
-                <label for="data">Data</label>
+                <label for="data">
+                    Data
+                </label>
 
                 <input
                     type="date"
@@ -195,9 +246,14 @@
 
             <div class="historico-header">
 
-                <h2>Meus lançamentos</h2>
+                <h2>
+                    Meus lançamentos
+                </h2>
 
-                <button id="limparLancamentos" class="btn-danger">
+                <button
+                    id="limparLancamentos"
+                    class="btn-danger"
+                >
                     Limpar meus lançamentos
                 </button>
 
@@ -213,11 +269,17 @@
                         <tr>
 
                             <th>Data</th>
+
                             <th>Descrição</th>
+
                             <th>Categoria</th>
+
                             <th>Pagamento</th>
+
                             <th>Parcelas</th>
+
                             <th>Valor</th>
+
                             <th>Ação</th>
 
                         </tr>
@@ -235,7 +297,7 @@
     </main>
 
 
-    <script src="./js/dashboard.js"></script>
+    <script src="./dashboard.js"></script>
 
 </body>
 
