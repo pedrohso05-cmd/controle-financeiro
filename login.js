@@ -1,21 +1,30 @@
 import { supabase } from "./supabase.js";
 
 const loginForm = document.getElementById("loginForm");
-const loginMensagem = document.getElementById("loginMensagem");
+const loginMensagem =
+    document.getElementById("loginMensagem");
 
 loginForm.addEventListener("submit", async function(event) {
 
     event.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const senha = document.getElementById("senha").value;
+    const email =
+        document.getElementById("email").value.trim();
+
+    const senha =
+        document.getElementById("senha").value;
 
     loginMensagem.textContent = "";
+    loginMensagem.style.color = "";
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-        email: email,
-        password: senha
-    });
+    const { data, error } =
+        await supabase.auth.signInWithPassword({
+
+            email: email,
+
+            password: senha
+
+        });
 
     if (error) {
 
@@ -27,6 +36,12 @@ loginForm.addEventListener("submit", async function(event) {
         return;
     }
 
-    window.location.href = "dashboard.html";
+    localStorage.setItem(
+        "usuarioLogado",
+        email
+    );
+
+    window.location.href =
+        "dashboard.html";
 
 });
