@@ -54,4 +54,3 @@ cadastroForm.addEventListener("submit", async function(event) {
     cadastroForm.reset();
 
 });
-});
