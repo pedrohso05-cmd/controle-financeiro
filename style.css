@@ -110,6 +110,43 @@ button:hover {
     margin: 30px auto;
 }
 
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.07);
+    margin-bottom: 25px;
+}
+
+.mes-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 18px 25px;
+}
+
+.mes-atual-area {
+    text-align: center;
+    flex: 1;
+}
+
+.mes-atual-area span {
+    display: block;
+    color: #777;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.mes-atual-area strong {
+    font-size: 22px;
+}
+
+.btn-mes {
+    min-width: 48px;
+    padding: 10px 15px;
+}
+
 .resumo {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -117,12 +154,8 @@ button:hover {
     margin-bottom: 25px;
 }
 
-.card {
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0 3px 15px rgba(0, 0, 0, 0.07);
-    margin-bottom: 25px;
+.resumo-card {
+    margin-bottom: 0;
 }
 
 .resumo-card span {
@@ -145,7 +178,14 @@ button:hover {
 }
 
 .hidden {
-    display: none;
+    display: none !important;
+}
+
+.valor-parcela-preview {
+    display: block;
+    margin-top: 8px;
+    color: #2563eb;
+    font-weight: bold;
 }
 
 .historico-header {
@@ -153,6 +193,13 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    gap: 15px;
+}
+
+.subtitulo-mes {
+    color: #777;
+    margin-top: 5px;
+    font-size: 14px;
 }
 
 .btn-danger {
@@ -195,6 +242,12 @@ th {
     font-weight: bold;
 }
 
+.sem-lancamentos {
+    text-align: center;
+    color: #777;
+    padding: 30px 10px;
+}
+
 @media (max-width: 700px) {
 
     .resumo {
@@ -215,8 +268,19 @@ th {
 
     .historico-header {
         flex-direction: column;
-        gap: 15px;
         align-items: flex-start;
     }
 
+    .mes-card {
+        padding: 15px;
+    }
+
+    .mes-atual-area strong {
+        font-size: 18px;
+    }
+
+    th,
+    td {
+        white-space: nowrap;
+    }
 }
