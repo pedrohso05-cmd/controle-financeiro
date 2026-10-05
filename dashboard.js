@@ -7,49 +7,165 @@ if (!usuarioLogado) {
 document.getElementById("nomeUsuario").textContent =
     "Olá, " + usuarioLogado + " 👋";
 
-
 const chaveDados = "lancamentos_" + usuarioLogado;
 
 let lancamentos =
     JSON.parse(localStorage.getItem(chaveDados)) || [];
 
-
 const financeForm = document.getElementById("financeForm");
-
 const tipoCompra = document.getElementById("tipoCompra");
+const parcelamentoArea = document.getElementById("parcelamentoArea");
+const parcelasInput = document.getElementById("parcelas");
+const valorInput = document.getElementById("valor");
+const valorParcelaPreview = document.getElementById("valorParcelaPreview");
+const listaLancamentos = document.getElementById("listaLancamentos");
+const semLancamentos = document.getElementById("semLancamentos");
 
-const parcelamentoArea =
-    document.getElementById("parcelamentoArea");
+const mesAtualElemento = document.getElementById("mesAtual");
+const subtituloLancamentos = document.getElementById("subtituloLancamentos");
+const mesAnterior = document.getElementById("mesAnterior");
+const mesProximo = document.getElementById("mesProximo");
 
-const listaLancamentos =
-    document.getElementById("listaLancamentos");
+let mesSelecionado = new Date();
+mesSelecionado.setDate(1);
 
+const nomesMeses = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro"
+];
+
+function formatarMoeda(valor) {
+    return Number(valor).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
+function obterChaveMes(data) {
+    const partes = data.split("-");
+    return Number(partes[0]) * 12 + (Number(partes[1]) - 1);
+}
+
+function obterChaveMesSelecionado() {
+    return mesSelecionado.getFullYear() * 12 + mesSelecionado.getMonth();
+}
+
+/*
+ * Retorna os dados da parcela que pertence ao mês selecionado.
+ *
+ * Exemplo:
+ * Compra de R$ 1.200 em 6x em outubro:
+ * Outubro = R$ 200 (1/6)
+ * Novembro = R$ 200 (2/6)
+ * Dezembro = R$ 200 (3/6)
+ * ...
+ */
+function obterParcelaDoMes(lancamento) {
+
+    const mesCompra = obterChaveMes(lancamento.data);
+    const mesAtual = obterChaveMesSelecionado();
+
+    if (lancamento.compra !== "parcelado") {
+        if (mesCompra !== mesAtual) {
+            return null;
+        }
+
+        return {
+            numero: 1,
+            total: 1,
+            valor: Number(lancamento.valor)
+        };
+    }
+
+    const totalParcelas = Math.max(1, Number(lancamento.parcelas) || 1);
+    const diferencaMeses = mesAtual - mesCompra;
+
+    if (diferencaMeses < 0 || diferencaMeses >= totalParcelas) {
+        return null;
+    }
+
+    const numeroParcela = diferencaMeses + 1;
+    const valorTotal = Number(lancamento.valor) || 0;
+
+    /*
+     * A última parcela recebe eventuais centavos restantes.
+     * Isso evita, por exemplo, que R$ 100 / 3 vire
+     * R$ 33,33 + R$ 33,33 + R$ 33,33 = R$ 99,99.
+     */
+    const valorBase = Math.floor((valorTotal / totalParcelas) * 100) / 100;
+
+    let valorParcela = valorBase;
+
+    if (numeroParcela === totalParcelas) {
+        valorParcela =
+            Math.round(
+                (valorTotal - valorBase * (totalParcelas - 1)) * 100
+            ) / 100;
+    }
+
+    return {
+        numero: numeroParcela,
+        total: totalParcelas,
+        valor: valorParcela
+    };
+}
 
 tipoCompra.addEventListener("change", function() {
 
     if (tipoCompra.value === "parcelado") {
-
         parcelamentoArea.classList.remove("hidden");
-
+        atualizarPreviewParcela();
     } else {
-
         parcelamentoArea.classList.add("hidden");
-
+        valorParcelaPreview.textContent = "";
     }
 
 });
 
+valorInput.addEventListener("input", atualizarPreviewParcela);
+parcelasInput.addEventListener("input", atualizarPreviewParcela);
+
+function atualizarPreviewParcela() {
+
+    if (tipoCompra.value !== "parcelado") {
+        valorParcelaPreview.textContent = "";
+        return;
+    }
+
+    const valor = Number(valorInput.value);
+    const parcelas = Number(parcelasInput.value);
+
+    if (!valor || !parcelas || parcelas < 2) {
+        valorParcelaPreview.textContent = "";
+        return;
+    }
+
+    const valorParcela =
+        Math.floor((valor / parcelas) * 100) / 100;
+
+    valorParcelaPreview.textContent =
+        "Cada mês: aproximadamente " + formatarMoeda(valorParcela);
+}
 
 financeForm.addEventListener("submit", function(event) {
 
     event.preventDefault();
 
-
     const tipo =
         document.getElementById("tipo").value;
 
     const descricao =
-        document.getElementById("descricao").value;
+        document.getElementById("descricao").value.trim();
 
     const valor =
         Number(document.getElementById("valor").value);
@@ -66,17 +182,28 @@ financeForm.addEventListener("submit", function(event) {
     const data =
         document.getElementById("data").value;
 
-
     let parcelas = 1;
-
 
     if (compra === "parcelado") {
 
         parcelas =
             Number(document.getElementById("parcelas").value);
 
+        if (!parcelas || parcelas < 2) {
+            alert("Informe pelo menos 2 parcelas.");
+            return;
+        }
     }
 
+    if (!valor || valor <= 0) {
+        alert("Informe um valor válido.");
+        return;
+    }
+
+    if (!data) {
+        alert("Informe a data da compra.");
+        return;
+    }
 
     const novoLancamento = {
 
@@ -86,6 +213,10 @@ financeForm.addEventListener("submit", function(event) {
 
         descricao: descricao,
 
+        /*
+         * Guardamos o valor TOTAL da compra.
+         * A tela mensal mostra somente a parcela correspondente.
+         */
         valor: valor,
 
         categoria: categoria,
@@ -100,21 +231,18 @@ financeForm.addEventListener("submit", function(event) {
 
     };
 
-
     lancamentos.push(novoLancamento);
-
 
     salvarDados();
 
     atualizarTela();
 
-
     financeForm.reset();
 
     parcelamentoArea.classList.add("hidden");
+    valorParcelaPreview.textContent = "";
 
 });
-
 
 function salvarDados() {
 
@@ -125,67 +253,78 @@ function salvarDados() {
 
 }
 
+function atualizarCabecalhoMes() {
+
+    const nomeMes = nomesMeses[mesSelecionado.getMonth()];
+    const ano = mesSelecionado.getFullYear();
+
+    mesAtualElemento.textContent =
+        nomeMes + " de " + ano;
+
+    subtituloLancamentos.textContent =
+        "Lançamentos considerados em " + nomeMes + "/" + ano;
+
+}
 
 function atualizarTela() {
 
     listaLancamentos.innerHTML = "";
 
-
     let receitas = 0;
-
     let despesas = 0;
-
+    let quantidadeVisivel = 0;
 
     lancamentos.forEach(function(lancamento) {
 
+        const parcelaDoMes = obterParcelaDoMes(lancamento);
 
-        if (lancamento.tipo === "receita") {
-
-            receitas += lancamento.valor;
-
-        } else {
-
-            despesas += lancamento.valor;
-
+        if (!parcelaDoMes) {
+            return;
         }
 
+        quantidadeVisivel++;
 
-        const linha =
-            document.createElement("tr");
+        const valorDoMes = parcelaDoMes.valor;
 
+        if (lancamento.tipo === "receita") {
+            receitas += valorDoMes;
+        } else {
+            despesas += valorDoMes;
+        }
+
+        const linha = document.createElement("tr");
 
         const valorFormatado =
-            lancamento.valor.toLocaleString(
-                "pt-BR",
-                {
-                    style: "currency",
-                    currency: "BRL"
-                }
-            );
-
+            formatarMoeda(valorDoMes);
 
         const parcelasTexto =
             lancamento.compra === "parcelado"
-                ? lancamento.parcelas + "x"
+                ? parcelaDoMes.numero + "/" + parcelaDoMes.total
                 : "À vista";
 
+        /*
+         * A data exibida para uma parcela é o mês em que ela
+         * está sendo considerada, mantendo o dia da compra.
+         */
+        const dataParcela =
+            criarDataDaParcela(lancamento.data, parcelaDoMes.numero - 1);
 
         linha.innerHTML = `
 
             <td>
-                ${formatarData(lancamento.data)}
+                ${formatarData(dataParcela)}
             </td>
 
             <td>
-                ${lancamento.descricao}
+                ${escaparHTML(lancamento.descricao)}
             </td>
 
             <td>
-                ${lancamento.categoria}
+                ${escaparHTML(lancamento.categoria)}
             </td>
 
             <td>
-                ${lancamento.pagamento}
+                ${escaparHTML(lancamento.pagamento)}
             </td>
 
             <td>
@@ -221,65 +360,83 @@ function atualizarTela() {
 
         `;
 
-
         listaLancamentos.appendChild(linha);
 
     });
 
+    if (quantidadeVisivel === 0) {
+        semLancamentos.classList.remove("hidden");
+    } else {
+        semLancamentos.classList.add("hidden");
+    }
 
     document.getElementById("totalReceitas").textContent =
-        receitas.toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
-
+        formatarMoeda(receitas);
 
     document.getElementById("totalDespesas").textContent =
-        despesas.toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
-
+        formatarMoeda(despesas);
 
     const saldo = receitas - despesas;
 
-
     document.getElementById("saldo").textContent =
-        saldo.toLocaleString(
-            "pt-BR",
-            {
-                style: "currency",
-                currency: "BRL"
-            }
-        );
+        formatarMoeda(saldo);
+
+    atualizarCabecalhoMes();
 
 }
 
+function criarDataDaParcela(dataOriginal, mesesAdicionados) {
+
+    const partes = dataOriginal.split("-");
+
+    const ano = Number(partes[0]);
+    const mes = Number(partes[1]);
+    const dia = Number(partes[2]);
+
+    const data = new Date(ano, mes - 1 + mesesAdicionados, 1);
+
+    /*
+     * Ajusta o dia para meses com menos dias.
+     * Ex.: compra no dia 31 -> fevereiro usa o último dia disponível.
+     */
+    const ultimoDiaDoMes =
+        new Date(
+            data.getFullYear(),
+            data.getMonth() + 1,
+            0
+        ).getDate();
+
+    data.setDate(Math.min(dia, ultimoDiaDoMes));
+
+    const anoFormatado = data.getFullYear();
+    const mesFormatado =
+        String(data.getMonth() + 1).padStart(2, "0");
+    const diaFormatado =
+        String(data.getDate()).padStart(2, "0");
+
+    return (
+        anoFormatado +
+        "-" +
+        mesFormatado +
+        "-" +
+        diaFormatado
+    );
+
+}
 
 function excluirLancamento(id) {
 
     const confirmar =
         confirm("Deseja realmente excluir este lançamento?");
 
-
     if (!confirmar) {
         return;
     }
 
-
     lancamentos =
         lancamentos.filter(function(lancamento) {
-
             return lancamento.id !== id;
-
         });
-
 
     salvarDados();
 
@@ -287,16 +444,13 @@ function excluirLancamento(id) {
 
 }
 
-
 function formatarData(data) {
 
     if (!data) {
         return "";
     }
 
-
     const partes = data.split("-");
-
 
     return (
         partes[2] +
@@ -308,6 +462,40 @@ function formatarData(data) {
 
 }
 
+/*
+ * Evita que uma descrição/categoria digitada pelo usuário
+ * seja interpretada como HTML dentro da tabela.
+ */
+function escaparHTML(texto) {
+
+    return String(texto)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+mesAnterior.addEventListener("click", function() {
+
+    mesSelecionado.setMonth(
+        mesSelecionado.getMonth() - 1
+    );
+
+    atualizarTela();
+
+});
+
+mesProximo.addEventListener("click", function() {
+
+    mesSelecionado.setMonth(
+        mesSelecionado.getMonth() + 1
+    );
+
+    atualizarTela();
+
+});
 
 document
     .getElementById("limparLancamentos")
@@ -318,11 +506,9 @@ document
                 "Isso apagará todos os seus lançamentos. Continuar?"
             );
 
-
         if (!confirmar) {
             return;
         }
-
 
         lancamentos = [];
 
@@ -331,7 +517,6 @@ document
         atualizarTela();
 
     });
-
 
 document
     .getElementById("btnSair")
@@ -343,5 +528,21 @@ document
 
     });
 
+/*
+ * Mantém a data do formulário no dia atual quando possível.
+ */
+const dataInput = document.getElementById("data");
+
+if (!dataInput.value) {
+
+    const hoje = new Date();
+
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+
+    dataInput.value =
+        ano + "-" + mes + "-" + dia;
+}
 
 atualizarTela();
